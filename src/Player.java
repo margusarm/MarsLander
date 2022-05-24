@@ -75,14 +75,14 @@ class Player {
             lander.setStartAttr(startX, startY, startHS, startVS, startP, startR); //krt seda pole vaja vist nii mahukalt
 
             // lander objekti kasutamine
-            lander.tiltAcc();
+            lander.landingRotation();
 
 
             debug("speed: " + lander.speed);
             debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
             debug("acc distance: " + lander.pDistLandX());
-            debug("acc distance2: " + lander.distance());
+            debug("when landingspot X: " + lander.landX + " Y: " + lander.distance() + ", but should be: " + lander.landY);
             //debug("rotation: "+ lander.R);
             //debug("varG: "+ lander.varG);
             //debug("landX: "+ lander.landX);
@@ -124,7 +124,7 @@ class Player {
              */
 
 
-            System.out.println(lander.R + " " +lander.P);
+            System.out.println(lander.R + " " + lander.P);
 
         }
     }
@@ -221,37 +221,56 @@ class Lander {
 
     }
 
-    public double distance(){
-        double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX,2) /
-                (2 * Math.pow(this.speed,2) * Math.pow(Math.toRadians(Math.abs(this.R)),2));
+    public double distance() {
+        double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX, 2) /
+                (2 * Math.pow(this.speed, 2) * Math.pow(Math.toRadians(Math.abs(this.R)), 2));
         return y;
     }
 
-    public void tiltDecc(){
-        if (this.fromLeft){
-            this.R +=10;
+    public void tiltDecc() {
+        if (this.fromLeft) {
+            this.R += 10;
         } else {
-            this.R -=10;
+            this.R -= 10;
         }
 
-        if(this.R > 90){
-            this.R =90;
-        } else if (this.R < -90) {
-            this.R = -90;
-        }
-    }
-    public void tiltAcc(){
-        if (this.fromLeft){
-            this.R -=10;
-        } else {
-            this.R +=10;
-        }
-
-        if(this.R > 90){
-            this.R =90;
+        if (this.R > 90) {
+            this.R = 90;
         } else if (this.R < -90) {
             this.R = -90;
         }
     }
 
+    public void tiltAcc() {
+        if (this.fromLeft) {
+            this.R -= 10;
+        } else {
+            this.R += 10;
+        }
+
+        if (this.R > 90) {
+            this.R = 90;
+        } else if (this.R < -90) {
+            this.R = -90;
+        }
+    }
+
+    public void landingRotation() {
+        int corr = this.fromLeft ? 90 : -90;
+        this.R = ((int) Math.round(this.vector) + corr);
+
+        if (this.R > 90) {
+            this.R = 90;
+        } else if (this.R < -90) {
+            this.R = -90;
+        }
+    }
+
+    public void maintainSpeedApp() {
+        //empty
+    }
+
+    public void maintainSpeedLand() {
+        //empty
+    }
 }

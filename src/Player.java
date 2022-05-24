@@ -69,32 +69,25 @@ class Player {
             //P = 1;
             //R = -45;
 
+            // lander objekti loomine
             lander.setPos(X, Y, landingPointX, landingPointY);
             lander.setMove(HS, VS, R, P);
             lander.setStartAttr(startX, startY, startHS, startVS, startP, startR); //krt seda pole vaja vist nii mahukalt
 
-            if (lander.HS>20){
-                int corr = lander.fromLeft ? 60 : -60 ;
-                lander.R = (int) Math.round(lander.vector + corr) ;
-            }
+            // lander objekti kasutamine
+            lander.tiltAcc();
 
-            if (lander.landingDist > 1000 && lander.HS > 20){
-                lander.P = 3;
-            } else if (lander.landingDist < 1000 && lander.speed > 40) {
-                lander.P = 4;
-                int corrL = lander.fromLeft ? 90 : -90;
-                lander.R = (int) Math.round(lander.vector + corrL);
-            }
 
             debug("speed: " + lander.speed);
             debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
-            //debug("acc distance: " + lander.pDistLandX());
+            debug("acc distance: " + lander.pDistLandX());
+            debug("acc distance2: " + lander.distance());
             //debug("rotation: "+ lander.R);
             //debug("varG: "+ lander.varG);
             //debug("landX: "+ lander.landX);
-            debug("R: "+lander.R + " P: "+lander.P);
-            debug(lander.HS);
+            //debug("R: "+lander.R + " P: "+lander.P);
+            //debug(lander.HS);
 
 
             /**
@@ -222,10 +215,43 @@ class Lander {
         //height -= 2500; // height 2300 läheb test2 läbi
         //TODO IMPORTANT - g arvutamisel on oluline, mis suunas parasjagu masin keeratud - suund
 
-        double flyingDistance = this.speed * Math.cos(this.R) * (this.speed * Math.sin(this.R) + Math.sqrt(Math.pow((this.speed * Math.sin(this.R)), 2) + 2 * this.varG * this.height)) / this.varG;         //d = V₀ * cos(α) * [V₀ * sin(α) + √((V₀ * sin(α))² + 2 * g * h)] / g
+        double flyingDistance = this.height + this.speed * Math.cos(this.R) * (this.speed * Math.sin(this.R) + Math.sqrt(Math.pow((this.speed * Math.sin(this.R)), 2) + 2 * this.varG * this.height)) / this.varG;         //d = V₀ * cos(α) * [V₀ * sin(α) + √((V₀ * sin(α))² + 2 * g * h)] / g
 
         return (int) flyingDistance - this.landingDist;
 
+    }
+
+    public double distance(){
+        double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX,2) /
+                (2 * Math.pow(this.speed,2) * Math.pow(Math.toRadians(Math.abs(this.R)),2));
+        return y;
+    }
+
+    public void tiltDecc(){
+        if (this.fromLeft){
+            this.R +=10;
+        } else {
+            this.R -=10;
+        }
+
+        if(this.R > 90){
+            this.R =90;
+        } else if (this.R < -90) {
+            this.R = -90;
+        }
+    }
+    public void tiltAcc(){
+        if (this.fromLeft){
+            this.R -=10;
+        } else {
+            this.R +=10;
+        }
+
+        if(this.R > 90){
+            this.R =90;
+        } else if (this.R < -90) {
+            this.R = -90;
+        }
     }
 
 }

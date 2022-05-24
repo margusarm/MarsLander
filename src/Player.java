@@ -77,7 +77,7 @@ class Player {
             // lander objekti kasutamine
             lander.landingRotation();
 
-
+            //debugging info
             debug("speed: " + lander.speed);
             debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
@@ -90,38 +90,6 @@ class Player {
             //debug(lander.HS);
 
 
-            /**
-             if( Math.abs(vectorSpeed)  > 10 && distance< initialDistance * 0.2 && heightFromLandingPoint < 500){
-             int corrLand = fromLeft ? 90 : -90;
-             R = (int) headingVector + corrLand;
-             P = 4;
-             System.err.println("land");
-             } else if (distance < initialDistance * 0.75 && Math.abs(vectorSpeed)  > 10) {
-             int corrApp = fromLeft ? 60 : -60;
-             R = (int) headingVector + corrApp;
-             P = 4;
-             System.err.println("app");
-
-             } else if(Math.abs(HS)>60) {
-             int corrSpeedy = fromLeft ? 60 : -60;
-             R = (int) headingVector + corrSpeedy;
-             P = 3;
-             } else if (Math.abs(vectorSpeed)<10){
-             R = fromLeft ? -45 : 45;
-             P = 4;
-             }
-             if(Y - landingPointY <100){ // usually not needed but just in case
-             R = 0;
-             }
-             if (Math.abs(HS)>40){
-             int corrSpeedy = fromLeft ? 90 : -90;
-             R = (int) headingVector + corrSpeedy;
-             P = 4;
-             }
-             //R = -45;
-             //P = 4;
-
-             */
 
 
             System.out.println(lander.R + " " + lander.P);
@@ -169,6 +137,9 @@ class Lander {
     int startP;
     int startR;
 
+    public Lander(){
+        //no action needed
+    }
 
     public void setPos(int X, int Y, int landX, int landY) {
         this.X = X;

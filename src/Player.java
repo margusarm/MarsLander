@@ -255,41 +255,23 @@ class Lander {
 
     public void tiltDecc() {
         if (this.fromLeft) {
-            this.R += 10;
+            this.setR(this.R + 10);
         } else {
-            this.R -= 10;
-        }
-
-        if (this.R > 90) {
-            this.R = 90;
-        } else if (this.R < -90) {
-            this.R = -90;
+            this.setR(this.R - 10);
         }
     }
 
     public void tiltAcc() {
         if (this.fromLeft) {
-            this.R -= 10;
+            this.setR(this.R - 10);
         } else {
-            this.R += 10;
-        }
-
-        if (this.R > 90) {
-            this.R = 90;
-        } else if (this.R < -90) {
-            this.R = -90;
+            this.setR(this.R + 10);
         }
     }
 
     public void landingRotation() {
         int corr = this.fromLeft ? 90 : -90;
-        this.R = ((int) Math.round(this.vector) + corr);
-
-        if (this.R > 90) {
-            this.R = 90;
-        } else if (this.R < -90) {
-            this.R = -90;
-        }
+        this.setR((int) Math.round(this.vector) + corr);
     }
 
     public void maintainSpeedApp() {
@@ -302,6 +284,11 @@ class Lander {
     //setters
 
     public void setR(int r) {
+        if (r < -90) {
+            r = -90;
+        } else if (r > 90) {
+            r = 90;
+        }
         R = r;
     }
 

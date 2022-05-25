@@ -70,24 +70,54 @@ class Player {
             //R = -45;
 
             // lander objekti loomine
-            lander.setPos(X, Y, landingPointX, landingPointY);
+            lander.setPos(X, Y, landingPointX, landingPointY, flatPointXstart);
             lander.setMove(HS, VS, R, P);
             lander.setStartAttr(startX, startY, startHS, startVS, startP, startR); //krt seda pole vaja vist nii mahukalt
 
             // lander objekti kasutamine
-            lander.landingRotation();
+            //lander.landingRotation();
+            //lander.maintainSpeedApp();
+
+           if (lander.landAlpha < 52){
+                lander.R = lander.fromLeft ? 15 : -15; //TODO peab valemi tegema, mis igal korral on erinev nurk, mis ohutu on
+                lander.P = 4;
+            }
+            if (lander.landAlpha >= 52 || lander.height < 1000){
+                lander.landingRotation();
+                if (lander.VS<40){
+                    lander.P = 3;
+                } else if (lander.VS > 40) {
+                    lander.P = 4;
+
+                }
+            }
+
+            //kolmanda taseme jaoks
+            if (lander.landingDist < 1050 && lander.HS >40){
+                lander.P = 4;
+            }
+
+
+
+            if (lander.height<100){
+                lander.R = 0;
+            }
+
 
             //debugging info
             debug("speed: " + lander.speed);
-            debug("findY: " + lander.findLandY());
+            //debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
-            debug("acc distance: " + lander.pDistLandX());
+            //debug("acc distance: " + lander.pDistLandX());
             debug("when landingspot X: " + lander.landX + " Y: " + lander.distance() + ", but should be: " + lander.landY);
             //debug("rotation: "+ lander.R);
             //debug("varG: "+ lander.varG);
             //debug("landX: "+ lander.landX);
             //debug("R: "+lander.R + " P: "+lander.P);
             //debug(lander.HS);
+            //debug("direct distance: " + lander.diagonalDistance);
+            debug(" angle of impact: " + lander.landAlpha);
+            debug(lander.distance2());
 
 
 
@@ -113,6 +143,7 @@ class Player {
 class Lander {
     int X;
     int Y;
+    int xFlatStart;
     int landX;
     int landY;
     int VS;
@@ -122,12 +153,14 @@ class Lander {
     int height;
 
     double vector;
+    double landAlpha;
 
     double speed;
     double varG;
 
     boolean fromLeft;
     int landingDist;
+    int diagonalDistance;
 
     int startX;
     int startY;
@@ -141,14 +174,34 @@ class Lander {
         //no action needed
     }
 
-    public void setPos(int X, int Y, int landX, int landY) {
+    public void setPos(int X, int Y, int landX, int landY, int xFlatStart) {
         this.X = X;
         this.Y = Y;
+
+        this.xFlatStart = xFlatStart;
+
+        //maandumispunkt X teljel
         this.landX = landX;
+
+        //maandumispunkt Y teljel
         this.landY = landY;
+
+        //kaugus maapinnast Y teljel
         this.height = Y - landY;
-        this.fromLeft = X < landX ? true : false;
+
+        //kas paikneb maandumiskohast paremal või vasakul
+        this.fromLeft = X < xFlatStart ? true : false;
+
+        //kaugus maandumiskohast x teljel
         this.landingDist = fromLeft ? landX - X : X - landX;
+
+        //kui pikk on otsetee maandumiskohta
+        int x = Math.max(this.X,this.landX) - Math.min(this.X,this.landX);
+        int y = Math.max(this.Y,this.landY) - Math.min(this.Y,this.landY);
+        this.diagonalDistance = (int) Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+        this.landAlpha = Math.toDegrees(Math.acos((double) this.landingDist / this.diagonalDistance)) ;
+
 
     }
 
@@ -169,7 +222,6 @@ class Lander {
         this.R = R;
         this.P = P;
         this.vector = Math.toDegrees(Math.atan((this.VS - 3.711) / this.HS));
-
         this.speed = Math.abs(this.VS) / (Math.cos(Math.toRadians(Math.abs(this.HS) / this.vector)));
         this.varG = 3.711 - Math.sin(Math.toRadians(Math.abs(this.R))) * this.P; //custom g, mis võtab arvesse, mis suunas rakett on ja palju kiirendus on. kasutatakse all
     }
@@ -193,9 +245,15 @@ class Lander {
     }
 
     public double distance() {
+
         double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX, 2) /
                 (2 * Math.pow(this.speed, 2) * Math.pow(Math.toRadians(Math.abs(this.R)), 2));
         return y;
+    }
+
+    public double distance2(){
+        double d = this.speed - Math.pow(this.P,2)/2;
+        return d;
     }
 
     public void tiltDecc() {
@@ -238,10 +296,11 @@ class Lander {
     }
 
     public void maintainSpeedApp() {
-        //empty
+
     }
 
     public void maintainSpeedLand() {
         //empty
     }
+
 }

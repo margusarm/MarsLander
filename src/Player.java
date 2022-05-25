@@ -78,51 +78,48 @@ class Player {
             //lander.landingRotation();
             //lander.maintainSpeedApp();
 
-           if (lander.landAlpha < 52){
-                lander.R = lander.fromLeft ? 15 : -15; //TODO peab valemi tegema, mis igal korral on erinev nurk, mis ohutu on
-                lander.P = 4;
+            if (lander.getLandAlpha() <= 52) {
+                lander.setR(lander.isFromLeft() ? 15 : -15); //TODO peab valemi tegema, mis igal korral on erinev nurk, mis ohutu on
+                lander.setP(4);
             }
-            if (lander.landAlpha >= 52 || lander.height < 1000){
+            if (lander.getLandAlpha() > 52 || lander.getHeight() < 1000) {
                 lander.landingRotation();
-                if (lander.VS<40){
-                    lander.P = 3;
-                } else if (lander.VS > 40) {
-                    lander.P = 4;
+                if (lander.getVS() < 40) {
+                    lander.setP(3);
+                } else if (lander.getVS() > 40) {
+                    lander.setP(4);
 
                 }
             }
 
             //kolmanda taseme jaoks
-            if (lander.landingDist < 1050 && lander.HS >40){
-                lander.P = 4;
+            if (lander.getLandingDist() < 1050 && lander.getHS() > 40) {
+                lander.setP(4);
             }
 
 
-
-            if (lander.height<100){
-                lander.R = 0;
+            if (lander.getHeight() < 100) {
+                lander.setR(0);
             }
 
 
             //debugging info
-            debug("speed: " + lander.speed);
+            debug("speed: " + lander.getSpeed());
             //debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
             //debug("acc distance: " + lander.pDistLandX());
-            debug("when landingspot X: " + lander.landX + " Y: " + lander.distance() + ", but should be: " + lander.landY);
+            debug("when landingspot X: " + lander.getLandX() + " Y: " + lander.distance() + ", but should be: " + lander.getLandY());
             //debug("rotation: "+ lander.R);
             //debug("varG: "+ lander.varG);
             //debug("landX: "+ lander.landX);
             //debug("R: "+lander.R + " P: "+lander.P);
             //debug(lander.HS);
             //debug("direct distance: " + lander.diagonalDistance);
-            debug(" angle of impact: " + lander.landAlpha);
+            debug(" angle of impact: " + lander.getLandAlpha());
             debug(lander.distance2());
 
 
-
-
-            System.out.println(lander.R + " " + lander.P);
+            System.out.println(lander.getR() + " " + lander.getP());
 
         }
     }
@@ -141,36 +138,36 @@ class Player {
 }
 
 class Lander {
-    int X;
-    int Y;
-    int xFlatStart;
-    int landX;
-    int landY;
-    int VS;
-    int HS;
-    int R;
-    int P;
-    int height;
+    private int X;
+    private int Y;
+    private int xFlatStart;
+    private int landX;
+    private int landY;
+    private int VS;
+    private int HS;
+    private int R;
+    private int P;
+    private int height;
 
-    double vector;
-    double landAlpha;
+    private double vector;
+    private double landAlpha;
 
-    double speed;
-    double varG;
+    private double speed;
+    private double varG;
 
-    boolean fromLeft;
-    int landingDist;
-    int diagonalDistance;
+    private boolean fromLeft;
+    private int landingDist;
+    private int diagonalDistance;
 
-    int startX;
-    int startY;
+    private int startX;
+    private int startY;
 
-    int startHS;
-    int startVS;
-    int startP;
-    int startR;
+    private int startHS;
+    private int startVS;
+    private int startP;
+    private int startR;
 
-    public Lander(){
+    public Lander() {
         //no action needed
     }
 
@@ -196,11 +193,11 @@ class Lander {
         this.landingDist = fromLeft ? landX - X : X - landX;
 
         //kui pikk on otsetee maandumiskohta
-        int x = Math.max(this.X,this.landX) - Math.min(this.X,this.landX);
-        int y = Math.max(this.Y,this.landY) - Math.min(this.Y,this.landY);
-        this.diagonalDistance = (int) Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+        int x = Math.max(this.X, this.landX) - Math.min(this.X, this.landX);
+        int y = Math.max(this.Y, this.landY) - Math.min(this.Y, this.landY);
+        this.diagonalDistance = (int) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 
-        this.landAlpha = Math.toDegrees(Math.acos((double) this.landingDist / this.diagonalDistance)) ;
+        this.landAlpha = Math.toDegrees(Math.acos((double) this.landingDist / this.diagonalDistance));
 
 
     }
@@ -251,8 +248,8 @@ class Lander {
         return y;
     }
 
-    public double distance2(){
-        double d = this.speed - Math.pow(this.P,2)/2;
+    public double distance2() {
+        double d = this.speed - Math.pow(this.P, 2) / 2;
         return d;
     }
 
@@ -302,5 +299,109 @@ class Lander {
     public void maintainSpeedLand() {
         //empty
     }
+    //setters
 
+    public void setR(int r) {
+        R = r;
+    }
+
+    public void setP(int p) {
+        P = p;
+    }
+
+
+    //getters
+
+
+    public int getX() {
+        return X;
+    }
+
+    public int getY() {
+        return Y;
+    }
+
+    public int getxFlatStart() {
+        return xFlatStart;
+    }
+
+    public int getLandX() {
+        return landX;
+    }
+
+    public int getLandY() {
+        return landY;
+    }
+
+    public int getVS() {
+        return VS;
+    }
+
+    public int getHS() {
+        return HS;
+    }
+
+    public int getR() {
+        return R;
+    }
+
+    public int getP() {
+        return P;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public double getVector() {
+        return vector;
+    }
+
+    public double getLandAlpha() {
+        return landAlpha;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public double getVarG() {
+        return varG;
+    }
+
+    public boolean isFromLeft() {
+        return fromLeft;
+    }
+
+    public int getLandingDist() {
+        return landingDist;
+    }
+
+    public int getDiagonalDistance() {
+        return diagonalDistance;
+    }
+
+    public int getStartX() {
+        return startX;
+    }
+
+    public int getStartY() {
+        return startY;
+    }
+
+    public int getStartHS() {
+        return startHS;
+    }
+
+    public int getStartVS() {
+        return startVS;
+    }
+
+    public int getStartP() {
+        return startP;
+    }
+
+    public int getStartR() {
+        return startR;
+    }
 }

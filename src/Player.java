@@ -45,7 +45,7 @@ class Player {
                 x = surfaceXPoints[i] - surfaceXPoints[i - 1];
             }
 
-            int y = surfaceYPoints[i];
+            int y = surfaceYPoints[i]-surfaceYPoints[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
             if (i > 0 && surfaceYPoints[i] < surfaceYPoints[i - 1]) {
                 y = surfaceYPoints[i - 1];
             }
@@ -57,6 +57,7 @@ class Player {
             debug(i + " X: " + surfaceXPoints[i] + " Y: " + surfaceYPoints[i] + " alpha: " + alpha);
             if (i != 0 && surfaceYPoints[i] > surfaceYPoints[i - 1]) {
                 for (int j = surfaceXPoints[i - 1]; j <= surfaceXPoints[i]; j++) {
+                    //debug(j);
                     if (j > 0) {
                         surfaceY[j] = surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
                     }
@@ -78,7 +79,7 @@ class Player {
 
         }
 
-        for (int i = 990; i < 1020; i++) {
+        for (int i = 4990; i < 5100; i++) {
 
             if (surfaceY[i] != 0) {
                 debug(i + ". " + surfaceY[i]);
@@ -454,5 +455,15 @@ class Lander {
 
     public int getStartR() {
         return startR;
+    }
+}
+
+class Surface {
+
+    int[] surfaceX;
+    int[] surfaceY;
+    public void Surface(int[] surfaceX, int[] surfaceY){
+        this.surfaceX = surfaceX;
+        this.surfaceY = surfaceY;
     }
 }

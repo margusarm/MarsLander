@@ -15,10 +15,16 @@ class Player {
         int previousLandX = 0;
         int landingPointY = 0;
 
+        int[] surfaceXPoints = new int[N];
+        int[] surfaceYPoints = new int[N];
+
+        double[] surfaceY = new double[7000]; //siin mängus on x teljel 7000 punkti (0-6999). teen array, kus iga x ütleb Y koordinaadi.
         for (int i = 0; i < N; i++) {
 
             int landX = in.nextInt(); // X coordinate of a surface point. (0 to 6999)
             int landY = in.nextInt(); // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
+            surfaceXPoints[i] = landX;
+            surfaceYPoints[i] = landY;
             if (previousLandY - landY == 0) {
                 flatPointXstart = previousLandX;
                 flatPointXend = landX;
@@ -26,12 +32,60 @@ class Player {
             }
             previousLandY = landY;
             previousLandX = landX;
-            System.err.println(i + ". " + landX);
         }
         int landingPointX = flatPointXstart + (flatPointXend - flatPointXstart) / 2;
 
+        for (int i = 0; i < surfaceXPoints.length; i++) {
 
-        System.err.println(flatPointXstart + " - " + flatPointXend);
+            surfaceY[surfaceXPoints[i]] = surfaceYPoints[i]; //suures arrays on index X koordinaat ja selles kohas Y vaja teada.
+
+            //alpha leidmiseks
+            int x = 0;
+            if (i > 0) {
+                x = surfaceXPoints[i] - surfaceXPoints[i - 1];
+            }
+
+            int y = surfaceYPoints[i];
+            if (i > 0 && surfaceYPoints[i] < surfaceYPoints[i - 1]) {
+                y = surfaceYPoints[i - 1];
+            }
+            double alpha = Math.atan2(y, x); //nurga arvutamiseks
+
+            if (i > 0 && surfaceYPoints[i] == surfaceYPoints[i - 1] || x == 0) {
+                alpha = 0;
+            }
+            debug(i + " X: " + surfaceXPoints[i] + " Y: " + surfaceYPoints[i] + " alpha: " + alpha);
+            if (i != 0 && surfaceYPoints[i] > surfaceYPoints[i - 1]) {
+                for (int j = surfaceXPoints[i - 1]; j <= surfaceXPoints[i]; j++) {
+                    if (j > 0) {
+                        surfaceY[j] = surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
+                    }
+
+                }
+
+            } else if (i != 0 && surfaceYPoints[i] < surfaceYPoints[i - 1]) {
+
+
+                for (int j = surfaceXPoints[i-1]; j <= surfaceXPoints[i]; j++) {
+
+                    if (j > 0) {
+                        surfaceY[j] = surfaceY[j - 1] - Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
+                    }
+                }
+
+            }
+
+
+        }
+
+        for (int i = 990; i < 1020; i++) {
+
+            if (surfaceY[i] != 0) {
+                debug(i + ". " + surfaceY[i]);
+            }
+        }
+
+
         double headingVector = 0;
         double absoluteVS = 0;
         double absoluteHS = 0;
@@ -78,12 +132,14 @@ class Player {
             //lander.landingRotation();
             //lander.maintainSpeedApp();
 
+
             if (lander.getLandAlpha() <= 52) {
                 lander.setR(lander.isFromLeft() ? 15 : -15); //TODO peab valemi tegema, mis igal korral on erinev nurk, mis ohutu on
                 lander.setP(4);
             }
             if (lander.getLandAlpha() > 52 || lander.getHeight() < 1000) {
                 lander.landingRotation();
+                debug("landing");
                 if (lander.getVS() < 40) {
                     lander.setP(3);
                 } else if (lander.getVS() > 40) {
@@ -97,6 +153,12 @@ class Player {
                 lander.setP(4);
             }
 
+            /**
+             if (lander.isFromLeft() && lander.getLandingDist() > 1000) {
+             lander.setR(-10);
+             lander.setP(3);
+             }
+             */
 
             if (lander.getHeight() < 100) {
                 lander.setR(0);
@@ -108,7 +170,7 @@ class Player {
             //debug("findY: " + lander.findLandY());
             //debug("vector: " + lander.vector);
             //debug("acc distance: " + lander.pDistLandX());
-            debug("when landingspot X: " + lander.getLandX() + " Y: " + lander.distance() + ", but should be: " + lander.getLandY());
+            //debug("when landingspot X: " + lander.getLandX() + " Y: " + lander.distance() + ", but should be: " + lander.getLandY());
             //debug("rotation: "+ lander.R);
             //debug("varG: "+ lander.varG);
             //debug("landX: "+ lander.landX);
@@ -116,7 +178,9 @@ class Player {
             //debug(lander.HS);
             //debug("direct distance: " + lander.diagonalDistance);
             debug(" angle of impact: " + lander.getLandAlpha());
-            debug(lander.distance2());
+            //debug(lander.distance2());
+            //debug(lander.getLandingDist() + " " + lander.getHeight());
+            debug(lander.getHeight());
 
 
             System.out.println(lander.getR() + " " + lander.getP());

@@ -15,16 +15,15 @@ class Player {
         int previousLandX = 0;
         int landingPointY = 0;
 
-        int[] surfaceXPoints = new int[N];
-        int[] surfaceYPoints = new int[N];
+        int[] allXPoints = new int[N];
+        int[] allYPoints = new int[N];
 
-        double[] surfaceY = new double[7000]; //siin mängus on x teljel 7000 punkti (0-6999). teen array, kus iga x ütleb Y koordinaadi.
         for (int i = 0; i < N; i++) {
 
             int landX = in.nextInt(); // X coordinate of a surface point. (0 to 6999)
             int landY = in.nextInt(); // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
-            surfaceXPoints[i] = landX;
-            surfaceYPoints[i] = landY;
+            allXPoints[i] = landX;
+            allYPoints[i] = landY;
             if (previousLandY - landY == 0) {
                 flatPointXstart = previousLandX;
                 flatPointXend = landX;
@@ -32,60 +31,23 @@ class Player {
             }
             previousLandY = landY;
             previousLandX = landX;
+            debug(i + ". landX: " + landX + " landY: " + landY);
         }
         int landingPointX = flatPointXstart + (flatPointXend - flatPointXstart) / 2;
 
-        for (int i = 0; i < surfaceXPoints.length; i++) {
+        Surface surface = new Surface(allXPoints, allYPoints);
 
-            surfaceY[surfaceXPoints[i]] = surfaceYPoints[i]; //suures arrays on index X koordinaat ja selles kohas Y vaja teada.
+        //siin saab vaadata, määratud lõiku (i=X), kui kõrgel on Y
+        /*for(int i= 0; i<100;i++){
+           debug(surface.getSurfaceY(i));
+        }*/
 
-            //alpha leidmiseks
-            int x = 0;
-            if (i > 0) {
-                x = surfaceXPoints[i] - surfaceXPoints[i - 1];
-            }
-
-            int y = surfaceYPoints[i]-surfaceYPoints[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
-            if (i > 0 && surfaceYPoints[i] < surfaceYPoints[i - 1]) {
-                y = surfaceYPoints[i - 1];
-            }
-            double alpha = Math.atan2(y, x); //nurga arvutamiseks
-
-            if (i > 0 && surfaceYPoints[i] == surfaceYPoints[i - 1] || x == 0) {
-                alpha = 0;
-            }
-            debug(i + " X: " + surfaceXPoints[i] + " Y: " + surfaceYPoints[i] + " alpha: " + alpha);
-            if (i != 0 && surfaceYPoints[i] > surfaceYPoints[i - 1]) {
-                for (int j = surfaceXPoints[i - 1]; j <= surfaceXPoints[i]; j++) {
-                    //debug(j);
-                    if (j > 0) {
-                        surfaceY[j] = surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
-                    }
-
-                }
-
-            } else if (i != 0 && surfaceYPoints[i] < surfaceYPoints[i - 1]) {
-
-
-                for (int j = surfaceXPoints[i-1]; j <= surfaceXPoints[i]; j++) {
-
-                    if (j > 0) {
-                        surfaceY[j] = surfaceY[j - 1] - Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
-                    }
-                }
-
-            }
-
-
+        //siin on mängu toodud asukohtades Y kõrgused
+        int c = 0;
+        for (int x : allXPoints) {
+            debug(c+". landX: " + x + " landY: " + surface.getSurfaceY(x));
+            c++;
         }
-
-        for (int i = 4990; i < 5100; i++) {
-
-            if (surfaceY[i] != 0) {
-                debug(i + ". " + surfaceY[i]);
-            }
-        }
-
 
         double headingVector = 0;
         double absoluteVS = 0;
@@ -181,7 +143,9 @@ class Player {
             debug(" angle of impact: " + lander.getLandAlpha());
             //debug(lander.distance2());
             //debug(lander.getLandingDist() + " " + lander.getHeight());
-            debug(lander.getHeight());
+            //debug(lander.getHeight());
+            debug("surface height: " + surface.getSurfaceY(lander.getX()));
+            //debug("height from surface: " + (lander.getY() - surface.getSurfaceY(lander.getX())));
 
 
             System.out.println(lander.getR() + " " + lander.getP());
@@ -308,8 +272,7 @@ class Lander {
 
     public double distance() {
 
-        double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX, 2) /
-                (2 * Math.pow(this.speed, 2) * Math.pow(Math.toRadians(Math.abs(this.R)), 2));
+        double y = this.height + this.landX * Math.tan(Math.toRadians(Math.abs(this.R))) - this.varG * Math.pow(this.landX, 2) / (2 * Math.pow(this.speed, 2) * Math.pow(Math.toRadians(Math.abs(this.R)), 2));
         return y;
     }
 
@@ -460,10 +423,68 @@ class Lander {
 
 class Surface {
 
-    int[] surfaceX;
-    int[] surfaceY;
-    public void Surface(int[] surfaceX, int[] surfaceY){
-        this.surfaceX = surfaceX;
-        this.surfaceY = surfaceY;
+    int[] mainPointsX;
+    int[] mainPointsY;
+    double[] surfaceY;
+
+    public Surface(int[] mainPointsX, int[] mainPointsY) {
+
+        //põhimõtteliselt töötab, aga kusagil arvutab valesti
+        this.mainPointsX = mainPointsX;
+        this.mainPointsY = mainPointsY;
+        this.surfaceY = new double[mainPointsX[mainPointsX.length - 1] + 1]; // 0 index vaja ka arvesse võtta ja array suurusele liita
+
+        for (int i = 0; i < mainPointsX.length; i++) {
+
+            surfaceY[mainPointsX[i]] = mainPointsY[i]; //suures arrays on index X koordinaat ja selles kohas Y vaja teada.
+
+            //alpha leidmiseks
+            int x = 0;
+            if (i > 0) {
+                x = mainPointsX[i] - mainPointsX[i - 1];
+            }
+
+            int y = mainPointsY[i] - mainPointsY[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
+            if (i > 0 && mainPointsY[i] < mainPointsY[i - 1]) {
+                y = mainPointsY[i - 1];
+            }
+            double alpha = Math.atan2(y, x); //nurga arvutamiseks
+
+            if (i > 0 && mainPointsY[i] == mainPointsY[i - 1] || x == 0) {
+                alpha = 0;
+            }
+
+            if (i != 0 && mainPointsY[i] > mainPointsY[i - 1]) {
+                for (int j = mainPointsX[i - 1]; j <= mainPointsX[i]; j++) {
+                    //debug(j);
+                    if (j > 0) {
+                        this.surfaceY[j] = this.surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
+                    }
+
+                }
+
+            } else if (i != 0 && mainPointsY[i] < mainPointsY[i - 1]) {
+
+
+                for (int j = mainPointsX[i - 1]; j <= mainPointsX[i]; j++) {
+
+                    if (j > 0) {
+                        this.surfaceY[j] = this.surfaceY[j - 1] - Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
+                    }
+                }
+
+            }
+
+
+        }
+
+    }
+
+    public double getSurfaceY(int x) {
+        return surfaceY[x];
+    }
+
+    public double[] getSurfaceY() {
+        return surfaceY;
     }
 }

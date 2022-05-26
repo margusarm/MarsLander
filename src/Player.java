@@ -443,7 +443,7 @@ class Surface {
             if (i > 0) {
                 x = mainPointsX[i] - mainPointsX[i - 1];
             }
-
+            //TODO y arvuamisel on viga. mitte esimese punkti kõrgus, vaid eelmise punkti kõrgus tuleb maha arvutada
             int y = mainPointsY[i] - mainPointsY[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
             if (i > 0 && mainPointsY[i] < mainPointsY[i - 1]) {
                 y = mainPointsY[i - 1];
@@ -455,7 +455,7 @@ class Surface {
             }
 
             if (i != 0 && mainPointsY[i] > mainPointsY[i - 1]) {
-                for (int j = mainPointsX[i - 1]; j <= mainPointsX[i]; j++) {
+                for (int j = mainPointsX[i - 1]; j < mainPointsX[i]; j++) {
                     //debug(j);
                     if (j > 0) {
                         this.surfaceY[j] = this.surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
@@ -466,11 +466,16 @@ class Surface {
             } else if (i != 0 && mainPointsY[i] < mainPointsY[i - 1]) {
 
 
-                for (int j = mainPointsX[i - 1]; j <= mainPointsX[i]; j++) {
+                for (int j = mainPointsX[i - 1]; j < mainPointsX[i]; j++) {
 
                     if (j > 0) {
                         this.surfaceY[j] = this.surfaceY[j - 1] - Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
                     }
+                }
+
+            } else if (i != 0 && mainPointsY[i] == mainPointsY[i-1]) {
+                for (int j = mainPointsX[i-1]; j < mainPointsX[i]; j++){
+                    this.surfaceY[j] = this.surfaceY[j-1];
                 }
 
             }

@@ -38,16 +38,17 @@ class Player {
         Surface surface = new Surface(allXPoints, allYPoints);
 
         //siin saab vaadata, määratud lõiku (i=X), kui kõrgel on Y
-        /*for(int i= 0; i<100;i++){
-           debug(surface.getSurfaceY(i));
-        }*/
+        for (int i = 6950; i < 7000; i++) {
+            debug(i + ". " + surface.getSurfaceY(i));
+        }
 
         //siin on mängu toodud asukohtades Y kõrgused
-        int c = 0;
+        // nüüdseks kasutu, sest ma ise määran need kohad
+       /* int c = 0;
         for (int x : allXPoints) {
-            debug(c+". landX: " + x + " landY: " + surface.getSurfaceY(x));
+            debug(c + ". landX: " + x + " landY: " + surface.getSurfaceY(x));
             c++;
-        }
+        }*/
 
         double headingVector = 0;
         double absoluteVS = 0;
@@ -444,9 +445,13 @@ class Surface {
                 x = mainPointsX[i] - mainPointsX[i - 1];
             }
             //TODO y arvuamisel on viga. mitte esimese punkti kõrgus, vaid eelmise punkti kõrgus tuleb maha arvutada
-            int y = mainPointsY[i] - mainPointsY[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
+            int y = mainPointsY[0];
+            if (i > 0) {
+                y = mainPointsY[i] - mainPointsY[i - 1];
+            }
+            //int y = mainPointsY[i] - mainPointsY[0]; //esimese punkti kõrgus tuleb maha lahutada, et õige kaateti kõrgus trig arvutusele tuleks
             if (i > 0 && mainPointsY[i] < mainPointsY[i - 1]) {
-                y = mainPointsY[i - 1];
+                y = mainPointsY[i - 1] - mainPointsY[i];
             }
             double alpha = Math.atan2(y, x); //nurga arvutamiseks
 
@@ -457,7 +462,7 @@ class Surface {
             if (i != 0 && mainPointsY[i] > mainPointsY[i - 1]) {
                 for (int j = mainPointsX[i - 1]; j < mainPointsX[i]; j++) {
                     //debug(j);
-                    if (j > 0) {
+                    if (!contains(mainPointsX, j)) { //siin peab kontrollima, et ega mainpoints juba sees pole. need peab vahele jätma
                         this.surfaceY[j] = this.surfaceY[j - 1] + Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
                     }
 
@@ -465,17 +470,19 @@ class Surface {
 
             } else if (i != 0 && mainPointsY[i] < mainPointsY[i - 1]) {
 
-
                 for (int j = mainPointsX[i - 1]; j < mainPointsX[i]; j++) {
 
-                    if (j > 0) {
+                    if (!contains(mainPointsX, j)) { //siin peab kontrollima, et ega mainpoints juba sees pole. need peab vahele jätma
                         this.surfaceY[j] = this.surfaceY[j - 1] - Math.tan(alpha); //siin ei pea x läbi kordama, sest x on alati 1
                     }
                 }
 
-            } else if (i != 0 && mainPointsY[i] == mainPointsY[i-1]) {
-                for (int j = mainPointsX[i-1]; j < mainPointsX[i]; j++){
-                    this.surfaceY[j] = this.surfaceY[j-1];
+            } else if (i != 0 && mainPointsY[i] == mainPointsY[i - 1]) {
+                for (int j = mainPointsX[i - 1]; j < mainPointsX[i]; j++) {
+                    if (!contains(mainPointsX, j)) {
+                        this.surfaceY[j] = this.surfaceY[j - 1];
+                    }
+
                 }
 
             }
@@ -491,5 +498,16 @@ class Surface {
 
     public double[] getSurfaceY() {
         return surfaceY;
+    }
+
+    boolean contains(int[] nrs, int nr) {
+        boolean result = false;
+        for (int i = 0; i < nrs.length; i++) {
+            if (nr == nrs[i]) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 }
